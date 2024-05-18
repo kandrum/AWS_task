@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from '../styles/Home.module.css';
-import { FaSearch } from 'react-icons/fa'; // Using react-icons for search icon
+import { FaSearch } from 'react-icons/fa';
 
 const Home = () => {
   const [hostedZones, setHostedZones] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [domainName, setDomainName] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchHostedZones();
@@ -35,8 +37,7 @@ const Home = () => {
     if (!confirmDelete) return;
 
     try {
-      // Ensure the zone name has a trailing dot
-      const formattedZoneName = zoneName.endsWith('.') ? zoneName : `${zoneName}.`;
+      const formattedZoneName = zoneName.endsWith('.') ? zoneName.slice(0, -1) : zoneName;
       const response = await fetch(`http://localhost:8080/route53/delete-hosted-zone/${formattedZoneName}`, {
         method: 'DELETE',
         headers: {
@@ -74,6 +75,11 @@ const Home = () => {
     } catch (error) {
       console.error('Error creating hosted zone:', error);
     }
+  };
+
+  const handleRowDoubleClick = (zoneName) => {
+    const formattedZoneName = zoneName.endsWith('.') ? zoneName.slice(0, -1) : zoneName;
+    navigate(`/records/${formattedZoneName}`);
   };
 
   return (
@@ -115,7 +121,7 @@ const Home = () => {
         </thead>
         <tbody>
           {filteredHostedZones.map(zone => (
-            <tr key={zone.Id}>
+            <tr key={zone.Id} onDoubleClick={() => handleRowDoubleClick(zone.Name)}>
               <td>{zone.Name}</td>
               <td>
                 <button onClick={() => handleDelete(zone.Name)}>Delete</button>
