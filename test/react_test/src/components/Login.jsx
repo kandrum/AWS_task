@@ -1,42 +1,47 @@
-// src/components/Login.js
 import React, { useState } from 'react';
-import { Home } from './Home';
 import { useNavigate } from 'react-router-dom';
 import styles from '../styles/Login.module.css';
 
 const Login = () => {
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState(''); 
   const [password, setPassword] = useState('');
-  const [error, setError]= useState('');
-  const [success, setSuccess]= useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [isRegistering, setIsRegistering] = useState(false); // Add state for toggling between login and register
   const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const loginData = {
-      email: username,
-      password: password
+    const data = {
+      username,
+      email,
+      password
     };
 
+    const url = isRegistering ? 'http://localhost:8080/register' : 'http://localhost:8080/login';
+
     try {
-      const response = await fetch('http://localhost:8080/login', {
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(loginData)
+        body: JSON.stringify(data)
       });
 
-      const data = await response.json();
+      const result = await response.json();
 
       if (response.ok) {
-        setSuccess(data.message);
+        setSuccess(result.message);
         setError('');
-        console.log('Login successful:', data.user);
-        navigate('/home');
+        console.log(isRegistering ? 'Registration successful:' : 'Login successful:', result.user);
+        if (!isRegistering) {
+          navigate('/home');
+        }
       } else {
-        setError(data.message);
+        setError(result.message);
         setSuccess('');
       }
     } catch (error) {
@@ -49,18 +54,32 @@ const Login = () => {
   return (
     <div className={styles.loginContainer}>
       <div className={styles.heading}>
-        <h1>Welcome !</h1>
+        <h1>{isRegistering ? 'Register' : 'Welcome!'}</h1>
       </div>
       <form onSubmit={handleSubmit}>
+        {isRegistering && (
+          <div className={styles.formGroup}>
+            <i className={`fas fa-user ${styles.icon}`}></i>
+            <input
+              type="text"
+              id="username"
+              className={styles.input}
+              placeholder="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          </div>
+        )}
         <div className={styles.formGroup}>
-          <i className={`fas fa-user ${styles.icon}`}></i>
+          <i className={`fas fa-envelope ${styles.icon}`}></i>
           <input
-            type="text"
-            id="username"
+            type="email"
+            id="email"
             className={styles.input}
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
         </div>
@@ -76,12 +95,15 @@ const Login = () => {
             required
           />
         </div>
-        <button type="submit" className={styles.button}>login</button>
+        <button type="submit" className={styles.button}>
+          {isRegistering ? 'Register' : 'Login'}
+        </button>
         {error && <p className={styles.error}>{error}</p>}
         {success && <p className={styles.success}>{success}</p>}
         <div className={styles.link}>
-          <a href="#">Forgot your password?</a>
-          <a href='#'>register</a>
+          <a href="#" onClick={() => setIsRegistering(!isRegistering)}>
+            {isRegistering ? 'Already have an account? Login' : 'Register'}
+          </a>
         </div>
       </form>
     </div>
