@@ -37,7 +37,8 @@ const Home = () => {
     if (!confirmDelete) return;
 
     try {
-      const formattedZoneName = zoneName.endsWith('.') ? zoneName.slice(0, -1) : zoneName;
+      // Ensure the domain name does not have a trailing dot
+      const formattedZoneName = zoneName.endsWith('.') ? zoneName : `${zoneName}.`;
       const response = await fetch(`http://localhost:8080/route53/delete-hosted-zone/${formattedZoneName}`, {
         method: 'DELETE',
         headers: {
@@ -49,7 +50,11 @@ const Home = () => {
         console.log('Hosted zone deleted successfully');
         fetchHostedZones();
       } else {
-        console.error('Error deleting hosted zone:', result.message);
+        if (result.error && result.error.includes('The specified hosted zone contains non-required resource record sets and so cannot be deleted.')) {
+          alert('You need to delete all non-required resource record sets before deleting the hosted zone.');
+        } else {
+          console.error('Error deleting hosted zone:', result.message);
+        }
       }
     } catch (error) {
       console.error('Error deleting hosted zone:', error);
@@ -78,6 +83,7 @@ const Home = () => {
   };
 
   const handleRowDoubleClick = (zoneName) => {
+    // Ensure the domain name does not have a trailing dot
     const formattedZoneName = zoneName.endsWith('.') ? zoneName.slice(0, -1) : zoneName;
     navigate(`/records/${formattedZoneName}`);
   };

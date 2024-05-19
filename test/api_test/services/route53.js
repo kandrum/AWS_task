@@ -7,7 +7,7 @@ AWS.config.update({ region: 'us-east-2' }); // Set region to us-east-2
 
 // Create Route 53 service object
 const route53 = new AWS.Route53();
-
+//======================================================================================================
 // Endpoint to create hosted zone
 router.post('/create-hosted-zone', async (req, res) => {
   const { domainName } = req.body;
@@ -25,7 +25,7 @@ router.post('/create-hosted-zone', async (req, res) => {
     res.status(500).json({ message: 'Error creating hosted zone', error: error.message });
   }
 });
-
+//==============================================================================================================
 // Endpoint to add DNS record using hosted zone name
 router.post('/hosted-zones/:domainName/records', async (req, res) => {
   const { domainName } = req.params;
@@ -71,6 +71,7 @@ router.post('/hosted-zones/:domainName/records', async (req, res) => {
     res.status(500).json({ message: 'Error adding DNS record', error: error.message });
   }
 });
+//================================================================================================
 // Endpoint to delete DNS record using hosted zone name
 router.post('/delete-record', async (req, res) => {
   const { domainName, recordName, recordType, recordValue, ttl } = req.body;
@@ -112,8 +113,8 @@ router.post('/delete-record', async (req, res) => {
     res.status(500).json({ message: 'Error deleting DNS record', error: error.message });
   }
 });
+//=====================================================================================================
 
-// Endpoint to edit DNS record using hosted zone name
 // Endpoint to edit DNS record using hosted zone name
 router.post('/hosted-zones/:domainName/edit-record', async (req, res) => {
   const { domainName } = req.params;
@@ -160,16 +161,19 @@ router.post('/hosted-zones/:domainName/edit-record', async (req, res) => {
     res.status(500).json({ message: 'Error editing DNS record', error: error.message });
   }
 });
-  
+  //==================================================================================================
 // Endpoint to delete hosted zone
 router.delete('/delete-hosted-zone/:domainName', async (req, res) => {
   const { domainName } = req.params;
 
   try {
+    // Ensure the domain name has a trailing dot
+    const formattedDomainName = domainName.endsWith('.') ? domainName : `${domainName}.`;
+
     // List all hosted zones
     const hostedZones = await route53.listHostedZones().promise();
     // Find the hosted zone with the specified domain name
-    const hostedZone = hostedZones.HostedZones.find(zone => zone.Name === domainName);
+    const hostedZone = hostedZones.HostedZones.find(zone => zone.Name === formattedDomainName);
 
     if (!hostedZone) {
       return res.status(404).json({ message: 'Hosted zone not found' });
@@ -177,6 +181,18 @@ router.delete('/delete-hosted-zone/:domainName', async (req, res) => {
 
     const hostedZoneId = hostedZone.Id.split('/').pop(); // Extract the hosted zone ID
 
+    // Check if the hosted zone contains any resource record sets other than the default NS and SOA records
+    const records = await route53.listResourceRecordSets({ HostedZoneId: hostedZoneId }).promise();
+    const nonDefaultRecords = records.ResourceRecordSets.filter(record => record.Type !== 'NS' && record.Type !== 'SOA');
+
+    if (nonDefaultRecords.length > 0) {
+      return res.status(400).json({
+        message: 'Error deleting hosted zone',
+        error: 'The specified hosted zone contains non-required resource record sets and so cannot be deleted. Please delete these records first.'
+      });
+    }
+
+    // Delete the hosted zone if no non-default records are present
     const data = await route53.deleteHostedZone({ Id: hostedZoneId }).promise();
     res.status(200).json({ message: 'Hosted zone deleted successfully', data });
   } catch (error) {
@@ -185,7 +201,7 @@ router.delete('/delete-hosted-zone/:domainName', async (req, res) => {
   }
 });
 
-
+//======================================================================================================
 // Endpoint to fetch all hosted zones
 router.get('/hosted-zones', async (req, res) => {
     try {
@@ -196,6 +212,7 @@ router.get('/hosted-zones', async (req, res) => {
       res.status(500).json({ message: 'Error fetching hosted zones', error: error.message });
     }
   });
+  //====================================================================================================
   
   // Endpoint to fetch records for a specific hosted zone by name
   router.get('/hosted-zones/:domainName/records', async (req, res) => {
