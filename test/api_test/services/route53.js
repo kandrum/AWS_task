@@ -27,14 +27,18 @@ router.post('/create-hosted-zone', async (req, res) => {
 });
 
 // Endpoint to add DNS record using hosted zone name
-router.post('/add-record', async (req, res) => {
-  const { domainName, recordName, recordType, recordValue, ttl } = req.body;
+router.post('/hosted-zones/:domainName/records', async (req, res) => {
+  const { domainName } = req.params;
+  const { recordName, recordType, recordValue, ttl } = req.body;
 
   try {
+    // Ensure the domain name has a trailing dot
+    const formattedDomainName = domainName.endsWith('.') ? domainName : `${domainName}.`;
+
     // List all hosted zones
     const hostedZones = await route53.listHostedZones().promise();
     // Find the hosted zone with the specified domain name
-    const hostedZone = hostedZones.HostedZones.find(zone => zone.Name === `${domainName}.`);
+    const hostedZone = hostedZones.HostedZones.find(zone => zone.Name === formattedDomainName);
 
     if (!hostedZone) {
       return res.status(404).json({ message: 'Hosted zone not found' });
@@ -67,7 +71,6 @@ router.post('/add-record', async (req, res) => {
     res.status(500).json({ message: 'Error adding DNS record', error: error.message });
   }
 });
-
 // Endpoint to delete DNS record using hosted zone name
 router.post('/delete-record', async (req, res) => {
   const { domainName, recordName, recordType, recordValue, ttl } = req.body;
@@ -111,50 +114,53 @@ router.post('/delete-record', async (req, res) => {
 });
 
 // Endpoint to edit DNS record using hosted zone name
-router.post('/edit-record', async (req, res) => {
-    const { domainName, oldRecordName, oldRecordType, oldRecordValue, oldTtl, newRecordName, newRecordType, newRecordValue, newTtl } = req.body;
-  
-    try {
-      // List all hosted zones
-      const hostedZones = await route53.listHostedZones().promise();
-      // Find the hosted zone with the specified domain name
-      const hostedZone = hostedZones.HostedZones.find(zone => zone.Name === `${domainName}.`);
-  
-      if (!hostedZone) {
-        return res.status(404).json({ message: 'Hosted zone not found' });
-      }
-  
-      const hostedZoneId = hostedZone.Id.split('/').pop(); // Extract the hosted zone ID
-  
-      // Use UPSERT action to update the record
-      const upsertParams = {
-        ChangeBatch: {
-          Changes: [
-            {
-              Action: 'UPSERT',
-              ResourceRecordSet: {
-                Name: newRecordName,
-                Type: newRecordType,
-                TTL: newTtl,
-                ResourceRecords: [{ Value: newRecordValue }],
-              },
-            },
-          ],
-          Comment: 'Record updated programmatically',
-        },
-        HostedZoneId: hostedZoneId,
-      };
-  
-      const data = await route53.changeResourceRecordSets(upsertParams).promise();
-      res.status(200).json({ message: 'DNS record edited successfully', data });
-    } catch (error) {
-      console.error('Error editing DNS record:', error);
-      res.status(500).json({ message: 'Error editing DNS record', error: error.message });
-    }
-  });
-  
-  
+// Endpoint to edit DNS record using hosted zone name
+router.post('/hosted-zones/:domainName/edit-record', async (req, res) => {
+  const { domainName } = req.params;
+  const { oldRecordName, oldRecordType, oldRecordValue, oldTtl, newRecordName, newRecordType, newRecordValue, newTtl } = req.body;
 
+  try {
+    // Ensure the domain name has a trailing dot
+    const formattedDomainName = domainName.endsWith('.') ? domainName : `${domainName}.`;
+
+    // List all hosted zones
+    const hostedZones = await route53.listHostedZones().promise();
+    // Find the hosted zone with the specified domain name
+    const hostedZone = hostedZones.HostedZones.find(zone => zone.Name === formattedDomainName);
+
+    if (!hostedZone) {
+      return res.status(404).json({ message: 'Hosted zone not found' });
+    }
+
+    const hostedZoneId = hostedZone.Id.split('/').pop(); // Extract the hosted zone ID
+
+    // Use UPSERT action to update the record
+    const upsertParams = {
+      ChangeBatch: {
+        Changes: [
+          {
+            Action: 'UPSERT',
+            ResourceRecordSet: {
+              Name: newRecordName,
+              Type: newRecordType,
+              TTL: newTtl,
+              ResourceRecords: [{ Value: newRecordValue }],
+            },
+          },
+        ],
+        Comment: 'Record updated programmatically',
+      },
+      HostedZoneId: hostedZoneId,
+    };
+
+    const data = await route53.changeResourceRecordSets(upsertParams).promise();
+    res.status(200).json({ message: 'DNS record edited successfully', data });
+  } catch (error) {
+    console.error('Error editing DNS record:', error);
+    res.status(500).json({ message: 'Error editing DNS record', error: error.message });
+  }
+});
+  
 // Endpoint to delete hosted zone
 router.delete('/delete-hosted-zone/:domainName', async (req, res) => {
   const { domainName } = req.params;

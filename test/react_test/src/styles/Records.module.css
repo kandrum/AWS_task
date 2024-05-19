@@ -1,29 +1,114 @@
 .container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
   }
   
-  h1 {
-    font-size: 2.5em;
+  .searchBarContainer {
+    position: relative;
+    display: flex;
+    align-items: center;
     margin-bottom: 20px;
   }
   
-  .table {
-    width: 80%;
-    border-collapse: collapse;
-    margin-top: 20px;
+  .searchIcon {
+    position: absolute;
+    left: 10px;
+    color: #999;
   }
   
-  .table th,
-  .table td {
-    border: 1px solid #ccc;
+  .searchBar {
+    width: 100%;
+    padding: 10px 10px 10px 30px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    outline: none;
+  }
+  
+  .actions {
+    margin-bottom: 20px;
+  }
+  
+  .actionButton {
+    margin-right: 10px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+  }
+  
+  .actionButton:hover {
+    background-color: #0056b3;
+  }
+  
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .table th, .table td {
     padding: 10px;
-    text-align: left;
+    border: 1px solid #ddd;
   }
   
   .table th {
-    background-color: #f8f9fa;
+    background-color: #f8f8f8;
+  }
+  
+  .modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  
+  .modalContent {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    width: 400px;
+  }
+  
+  .input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    outline: none;
+  }
+  
+  .okButton {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #28a745;
+    color: white;
+    cursor: pointer;
+  }
+  
+  .okButton:hover {
+    background-color: #218838;
+  }
+  
+  .cancelButton {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #dc3545;
+    color: white;
+    cursor: pointer;
+    margin-left: 10px;
+  }
+  
+  .cancelButton:hover {
+    background-color: #c82333;
   }
   
