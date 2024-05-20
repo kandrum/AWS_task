@@ -209,7 +209,7 @@ const Records = () => {
       </div>
       <div className={styles.actions}>
         <button className={styles.actionButton} onClick={() => setShowCreateModal(true)}>Create Record</button>
-        <button className={styles.actionButton} onClick={handleDeleteRecords}>Delete Selected</button>
+        <button className={styles.actionButton} onClick={handleDeleteRecords}>Delete Record</button>
         {selectedRecords.length === 1 && (
           <button className={styles.actionButton} onClick={() => handleEditRecord(records.find(r => r.Name === selectedRecords[0]))}>Edit Record</button>
         )}
