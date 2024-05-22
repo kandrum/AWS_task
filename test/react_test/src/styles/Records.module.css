@@ -111,4 +111,23 @@
   .cancelButton:hover {
     background-color: #c82333;
   }
+  .pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  
+  .paginationButton {
+    padding: 10px 15px;
+    margin: 0 5px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+  }
+  
+  .paginationButton:hover {
+    background-color: #0056b3;
+  }
   

@@ -16,7 +16,7 @@ const Home = () => {
 
   const fetchHostedZones = async () => {
     try {
-      const response = await fetch('http://localhost:8080/route53/hosted-zones');
+      const response = await fetch('https://7gff8xytf4.execute-api.us-east-2.amazonaws.com/route53/hosted-zones');
       const data = await response.json();
       setHostedZones(data.hostedZones);
     } catch (error) {
@@ -39,7 +39,7 @@ const Home = () => {
     try {
       // Ensure the domain name does not have a trailing dot
       const formattedZoneName = zoneName.endsWith('.') ? zoneName : `${zoneName}.`;
-      const response = await fetch(`http://localhost:8080/route53/delete-hosted-zone/${formattedZoneName}`, {
+      const response = await fetch(`https://7gff8xytf4.execute-api.us-east-2.amazonaws.com/route53/delete-hosted-zone/${formattedZoneName}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -63,7 +63,7 @@ const Home = () => {
 
   const handleAddHostedZone = async () => {
     try {
-      const response = await fetch('http://localhost:8080/route53/create-hosted-zone', {
+      const response = await fetch('https://7gff8xytf4.execute-api.us-east-2.amazonaws.com/route53/create-hosted-zone', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

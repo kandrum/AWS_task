@@ -1,49 +1,35 @@
-// Import necessary modules
-require('dotenv').config(); // Make sure this is at the top
-
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors'); // Import the cors package
+const cors = require('cors');
+const loginRoute = require('./services/Login');
+const route53Route = require('./services/route53');
 
-const loginRoute = require('./services/Login'); // Import the combined route
-const route53Route = require('./services/route53'); 
-
-// Initialize the Express application
 const app = express();
 
-// Enable CORS for all origins
-app.use(cors());
+const corsOptions = {
+  origin: "*", // Allows all origins
+  methods: "*", // Allows all HTTP methods
+  allowedHeaders: "*", // Allows all headers
+};
 
-// Connect to MongoDB
+app.use(cors(corsOptions));
+app.use(express.json());
+
 mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('MongoDB connected successfully.'))
   .catch(err => console.error('MongoDB connection error:', err));
 
-// Middleware to parse JSON bodies
-app.use(express.json());
-
-// Define a test schema and model
 const TestSchema = new mongoose.Schema({ name: String });
 const TestModel = mongoose.model('Test', TestSchema);
 
-// Use combined route
 app.use('/', loginRoute);
 app.use('/route53', route53Route);
 
-// Define other routes
 app.get('/', (req, res) => {
   res.send('Hello, your server is running!');
 });
 
-app.get('/login', (req, res) => {
-  res.render('login');
-});
-
-app.get('/register', (req, res) => {
-  res.render('register');
-});
-
-// Test route to create a document
 app.post('/test', async (req, res) => {
   const { name } = req.body;
   try {
@@ -55,7 +41,6 @@ app.post('/test', async (req, res) => {
   }
 });
 
-// Test route to fetch documents
 app.get('/test', async (req, res) => {
   try {
     const docs = await TestModel.find();
@@ -65,8 +50,4 @@ app.get('/test', async (req, res) => {
   }
 });
 
-// Start the server
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-  console.log(`Server is listening on port ${PORT}`);
-});
+module.exports = app;

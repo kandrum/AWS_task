@@ -23,7 +23,7 @@ const Records = () => {
   const fetchRecords = async () => {
     try {
       const formattedDomainName = domainName.endsWith('.') ? domainName.slice(0, -1) : domainName;
-      const response = await fetch(`http://localhost:8080/route53/hosted-zones/${formattedDomainName}/records`);
+      const response = await fetch(`https://7gff8xytf4.execute-api.us-east-2.amazonaws.com/route53/hosted-zones/${formattedDomainName}/records`);
       const data = await response.json();
       setRecords(data.records);
     } catch (error) {
@@ -58,7 +58,7 @@ const Records = () => {
       await Promise.all(selectedRecords.map(async (recordName) => {
         const record = records.find(r => r.Name === recordName);
         if (record) {
-          await fetch('http://localhost:8080/route53/delete-record', {
+          await fetch('https://7gff8xytf4.execute-api.us-east-2.amazonaws.com/route53/delete-record', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -83,7 +83,7 @@ const Records = () => {
   const handleCreateRecord = async () => {
     try {
       const formattedDomainName = domainName.endsWith('.') ? domainName.slice(0, -1) : domainName;
-      const response = await fetch(`http://localhost:8080/route53/hosted-zones/${formattedDomainName}/records`, {
+      const response = await fetch(`https://7gff8xytf4.execute-api.us-east-2.amazonaws.com/route53/hosted-zones/${formattedDomainName}/records`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -122,7 +122,7 @@ const Records = () => {
     try {
       const formattedDomainName = domainName.endsWith('.') ? domainName.slice(0, -1) : domainName;
       const oldRecord = records.find(r => r.Name === recordName);
-      const response = await fetch(`http://localhost:8080/route53/hosted-zones/${formattedDomainName}/edit-record`, {
+      const response = await fetch(`https://7gff8xytf4.execute-api.us-east-2.amazonaws.com/route53/hosted-zones/${formattedDomainName}/edit-record`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

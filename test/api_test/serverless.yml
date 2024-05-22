@@ -1,0 +1,21 @@
+service: api-test
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  memorySize: 2048
+  stage: dev
+  timeout: 15
+  region: us-east-2
+  environment:
+      MONGO_URL: "mongodb+srv://naveenchowdary401:p3zYS1kEgT7yVFIk@route53.tu9z5xs.mongodb.net/domain_name"
+
+functions:
+  app:
+    handler: handler.hello
+    events:
+        - httpApi:
+            path: /{any+}
+            method: "*"
+plugins:
+  - serverless-dotenv-plugin

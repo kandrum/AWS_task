@@ -20,7 +20,7 @@ const Login = () => {
       password
     };
 
-    const url = isRegistering ? 'http://localhost:8080/register' : 'http://localhost:8080/login';
+    const url = isRegistering ? 'https://7gff8xytf4.execute-api.us-east-2.amazonaws.com/register' : 'https://7gff8xytf4.execute-api.us-east-2.amazonaws.com/login';
 
     try {
       const response = await fetch(url, {

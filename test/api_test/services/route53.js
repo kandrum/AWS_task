@@ -213,31 +213,40 @@ router.get('/hosted-zones', async (req, res) => {
     }
   });
   //====================================================================================================
-  
-  // Endpoint to fetch records for a specific hosted zone by name
-  router.get('/hosted-zones/:domainName/records', async (req, res) => {
-    const { domainName } = req.params;
-  
-    try {
-      // List all hosted zones
-      const hostedZones = await route53.listHostedZones().promise();
-      // Find the hosted zone with the specified domain name
-      const hostedZone = hostedZones.HostedZones.find(zone => zone.Name === `${domainName}.`);
-  
-      if (!hostedZone) {
-        return res.status(404).json({ message: 'Hosted zone not found' });
-      }
-  
-      const hostedZoneId = hostedZone.Id.split('/').pop(); // Extract the hosted zone ID
-  
-      // Fetch records for the specified hosted zone
-      const data = await route53.listResourceRecordSets({ HostedZoneId: hostedZoneId }).promise();
-      res.status(200).json({ records: data.ResourceRecordSets });
-    } catch (error) {
-      console.error('Error fetching records:', error);
-      res.status(500).json({ message: 'Error fetching records', error: error.message });
-    }
-  });
 
+// Endpoint to fetch records for a specific hosted zone by name with pagination
+router.get('/hosted-zones/:domainName/records', async (req, res) => {
+  const { domainName } = req.params;
+
+  try {
+    // List all hosted zones
+    const hostedZones = await route53.listHostedZones().promise();
+    // Find the hosted zone with the specified domain name
+    const hostedZone = hostedZones.HostedZones.find(zone => zone.Name === `${domainName}.`);
+
+    if (!hostedZone) {
+      return res.status(404).json({ message: 'Hosted zone not found' });
+    }
+
+    const hostedZoneId = hostedZone.Id.split('/').pop(); // Extract the hosted zone ID
+
+    // Fetch records for the specified hosted zone
+    const data = await route53.listResourceRecordSets({ HostedZoneId: hostedZoneId }).promise();
+    res.status(200).json({ records: data.ResourceRecordSets });
+  } catch (error) {
+    console.error('Error fetching records:', error);
+    res.status(500).json({ message: 'Error fetching records', error: error.message });
+  }
+});
+//=============================================================================
+router.get('/test', async (req, res) => {
+  try {
+    
+    res.status(200).json({ message: 'test completed route 53' });
+  } catch (error) {
+    console.error('Error fetching hosted zones:', error);
+    res.status(500).json({ message: 'Error fetching hosted zones', error: error.message });
+  }
+});
 
 module.exports = router;
